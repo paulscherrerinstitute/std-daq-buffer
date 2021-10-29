@@ -1,29 +1,29 @@
 #!/bin/bash
 
 # conda activate
-export PATH=/home/dbe/miniconda3/bin:$PATH
-source /home/dbe/miniconda3/etc/profile.d/conda.sh
+export PATH=/home/dbe/miniconda2/bin:$PATH
+source /home/dbe/miniconda2/etc/profile.d/conda.sh
 conda deactivate
 conda activate sf-daq
 
 # path to build dir
-BUILD_PATH='/home/hax_l/sf_daq_buffer/build/'
+BUILD_PATH='/home/dbe/git/sf_daq_buffer/build/'
 # executables
 UDP_RECV='std_udp_recv'
 UDP_SYNC='std_udp_sync'
 EIGER_ASSEMBLER='eiger_assembler'
-STD_STREAM_SEND='std_stream_send'
 STD_DET_WRITER='std_det_writer'
 
 # default config file
-CONFIG_FILE='/home/hax_l/sf_daq_buffer/eiger/sf-daq-4/config/eiger.json'
+CONFIG_FILE='/home/dbe/git/sf_daq_buffer/eiger/xbl-daq-28/eiger.json'
+DET_CONFIG_FILE='/home/dbe/git/sf_daq_buffer/eiger/xbl-daq-28/5m.config'
+DET_PARAM_FILE='/home/dbe/git/sf_daq_buffer/eiger/xbl-daq-28/test.par'
 
 HELP_FLAG=0
 
 # CONFIGURATION
 BIT_DEPTH=16
 N_MPI_EXEC=3
-STREAM_NAME='streamvis'
 while getopts h:c:b:m: flag
 do
     case "${flag}" in
@@ -31,17 +31,15 @@ do
         c ) CONFIG_FILE=${OPTARG};;
         b ) BIT_DEPTH=${OPTARG};;
         m ) N_MPIT_EXEC=${OPTARG};;
-        s ) STREAMVIS=${OPTARG};;
     esac
 done
 
 # prints help and exits
 if (( ${HELP_FLAG} == 1 )); then
-    echo "Usage : $0 -h <help_flag> -c <config_file> -b <bit_depth> -s <stream_name>"
+    echo "Usage : $0 -h <help_flag> -c <config_file> -b <bit_depth>"
     echo "           help_flag : show this help and exits."
     echo "           config_file : detector configuration file."
     echo "           bit_depth : detector bit depth."
-    echo "           stream name : live stream name."
     exit
 fi
 
@@ -131,25 +129,6 @@ else
     exit
 fi
 
-# Start the stream
-echo "Starting the ${STD_STREAM_SEND}..."
-if [ -f "${BUILD_PATH}${STD_STREAM_SEND}" ]; then
-    if [ -f "${CONFIG_FILE}" ]; then
-        if [ ${BIT_DEPTH} -ne 0 ]; then
-            ${BUILD_PATH}${STD_STREAM_SEND} ${CONFIG_FILE} ${BIT_DEPTH} ${STREAM_NAME} &
-        else
-            echo "Error: ${BIT_DEPTH} can't be zero..."
-            exit
-        fi
-    else
-        echo "Something went wrong while starting the ${STD_STREAM_SEND}..."
-        exit
-    fi
-else
-    echo "Error: ${STD_STREAM_SEND} wasn't found..."
-    exit
-fi
-
 # Start the eiger writer
 echo "Starting the ${STD_DET_WRITER}..."
 export PATH="/usr/lib64/mpich-3.2/bin:${PATH}";
@@ -167,3 +146,12 @@ else
     echo "Error: ${STD_DET_WRITER} wasn't found..."
     exit
 fi
+
+
+# prepares the detector
+echo "Preparing the detector configuration for a default acquisition...";
+export PATH="/home/dbe/git/sf_daq_buffer/slsDetectorPackage/build/bin/:${PATH}";
+sls_detector_put config ${DET_CONFIG_FILE}
+sls_detector_put parameters ${DET_PARAM_FILE}
+sls_detector_put trimbits /home/dbe/git/sf_daq_buffer/eiger/test/eiger.sn000
+sls_detector_put dac vthreshold 2050
