@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(sf_daq_buffer)
+project(std-daq-buffer)
 set(CMAKE_CXX_STANDARD 17)
-
-set (SF_DAQ_BUFFER_VERSION "1.0.0")
+set (SF_DAQ_BUFFER_VERSION "2.0.0")
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
 
 # Download and unpack googletest at configure time
 configure_file(googletest.in googletest-download/CMakeLists.txt)
@@ -29,6 +25,13 @@ add_subdirectory(
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
         EXCLUDE_FROM_ALL)
+
+if (DEBUG_OUTPUT)
+        set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_OUTPUT")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG_OUTPUT")
+endif ()
+
+enable_testing()
 
 add_subdirectory(external)
 add_subdirectory("std-buffer")
