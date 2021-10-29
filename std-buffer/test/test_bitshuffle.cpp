@@ -112,38 +112,3 @@ TEST(bitshuffle, separate_compression)
         }
     }
 }
-
-using namespace std;
-using namespace chrono;
-
-TEST(bitshuffle, compression_speed)
-{
-    const int n_iterations = 100;
-    const size_t n_pixels = MODULE_N_PIXELS*32;
-
-    auto frame_buffer = make_unique<uint16_t[]>(n_pixels);
-    for (size_t i=0; i<n_pixels; i++) {
-        frame_buffer[i] = i%100;
-    }
-
-    auto compression_buffer = make_unique<char[]>(
-            bshuf_compress_lz4_bound(n_pixels, PIXEL_N_BYTES, 0));
-
-    auto start_time = steady_clock::now();
-
-    for (int i=0; i<n_iterations; i++) {
-        auto compressed_size = bshuf_compress_lz4(
-                frame_buffer.get(), // in
-                compression_buffer.get(), // out
-                n_pixels,  // size
-                PIXEL_N_BYTES,  // elem_size
-                0); // block_size
-    }
-
-    auto end_time = steady_clock::now();
-
-    size_t duration = duration_cast<microseconds>(
-            end_time-start_time).count();
-
-    cout << endl << "Duration of " << duration/100 << " microseconds" << endl;
-}
