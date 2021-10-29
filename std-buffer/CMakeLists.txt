@@ -1,4 +1,4 @@
-add_subdirectory(external/)
+
 
 file(GLOB SOURCES
         src/*.cpp)
