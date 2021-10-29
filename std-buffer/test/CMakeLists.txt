@@ -1,7 +1,7 @@
-add_executable(core-buffer-tests main.cpp)
+add_executable(std-buffer-tests main.cpp)
 
-target_link_libraries(core-buffer-tests
-        core-buffer-lib
+target_link_libraries(std-buffer-tests
+        std-buffer-lib
         external
         rt
         zmq
