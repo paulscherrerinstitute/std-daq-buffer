@@ -3,22 +3,29 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 
 namespace BufferUtils
 {
 
     struct DetectorConfig {
-        const std::string streamvis_address;
-        const int reduction_factor_streamvis;
-        const std::string live_analysis_address;
-        const int reduction_factor_live_analysis;
-        const std::string PEDE_FILENAME;
-        const std::string GAIN_FILENAME;
-
         const std::string detector_name;
+        const std::string detector_type;
         const int n_modules;
+        const int image_height;
+        const int image_width;
         const int start_udp_port;
-        const std::string buffer_folder;
+        
+
+        friend std::ostream& operator <<(std::ostream& os, DetectorConfig const& det_config)
+        {
+                return os << det_config.detector_name << ' '
+                        << det_config.detector_type << ' '
+                        << det_config.n_modules << ' '
+                        << det_config.start_udp_port << ' '
+                        << det_config.image_height << ' '
+                        << det_config.image_width << ' ';
+        }
     };
 
 
